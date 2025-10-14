@@ -1,35 +1,45 @@
 package ru.yandex.practicum.delivery;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class DeliveryApp {
 
-    private static final Scanner scanner = new Scanner(System.in);
-    private static List<Parcel> allParcels = new ArrayList<>();
-
     public static void main(String[] args) {
+
+        Scanner scanner = new Scanner(System.in);
+        ParcelController parcelController = new ParcelController();
+
         boolean running = true;
         while (running) {
             showMenu();
-            int choice = Integer.parseInt(scanner.nextLine());
+            String input = scanner.nextLine();
 
-            switch (choice) {
-                case 1:
-                    addParcel();
-                    break;
-                case 2:
-                    sendParcels();
-                    break;
-                case 3:
-                    calculateCosts();
-                    break;
-                case 0:
-                    running = false;
-                    break;
-                default:
-                    System.out.println("Неверный выбор.");
+            if (input.isEmpty()) {
+                System.out.println("Пожалуйста, введите команду в виде числа от 0 до 3.");
+                continue;
+            }
+
+            try {
+                int choice = Integer.parseInt(input);
+
+                switch (choice) {
+                    case 1:
+                        parcelController.addParcel();
+                        break;
+                    case 2:
+                        parcelController.sendParcels();
+                        break;
+                    case 3:
+                        parcelController.calculateCosts();
+                        break;
+                    case 0:
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Неверный выбор.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("Неверный формат. Пожалуйста, введите номер команды (0, 1, 2 или 3).\n");
             }
         }
     }
@@ -42,19 +52,7 @@ public class DeliveryApp {
         System.out.println("0 — Завершить");
     }
 
-    // реализуйте методы ниже
 
-    private static void addParcel() {
-        // Подсказка: спросите тип посылки и необходимые поля, создайте объект и добавьте в allParcels
-    }
-
-    private static void sendParcels() {
-        // Пройти по allParcels, вызвать packageItem() и deliver()
-    }
-
-    private static void calculateCosts() {
-        // Посчитать общую стоимость всех доставок и вывести на экран
-    }
 
 }
 
