@@ -2,10 +2,10 @@ package ru.yandex.practicum.delivery;
 
 public abstract class Parcel {
     //добавьте реализацию и другие необходимые классы
-    private String description;
-    private int weight;
-    private String deliveryAddress;
-    private int sendDay;
+    private final String description;
+    private final int weight;
+    private final String deliveryAddress;
+    private final int sendDay;
 
 
     public Parcel(String description, int weight, String deliveryAddress, int sendDay) {
@@ -15,36 +15,18 @@ public abstract class Parcel {
         this.sendDay = sendDay;
     }
 
-    public void setWeight(int weigh) {
-            if (weight < 0) {
-                throw new IllegalArgumentException("Вес не может быть отрицательным.");
-            }
-            this.weight = weight;
+    public void packageItem() {
+        System.out.println("Посылка <<" + getDescription() + ">> упакована.");
     }
 
-    public void setSendDay(int sendDay) {
-            if (sendDay < 1 || sendDay > 30) {
-                System.out.println("День отправления должен находиться в пределах от 1 до 30.");
-            }
-            this.sendDay = sendDay;
+    public void deliver() {
+        System.out.println("Посылка <<" + getDescription() + ">> отправлена по адресу <<" + getDeliveryAddress() + ">>");
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public abstract int getBaseCost();
 
-    public void setDeliveryAddress(String deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
-    }
-
-    @Override
-    public String toString() {
-        return "Parcel{" +
-                "description='" + description + '\'' +
-                ", weight=" + weight +
-                ", deliveryAddress='" + deliveryAddress + '\'' +
-                ", sendDay=" + sendDay +
-                '}';
+    public int calculateDeliveryCost() {
+        return getWeight() * getBaseCost();
     }
 
     public String getDescription() {
@@ -61,5 +43,15 @@ public abstract class Parcel {
 
     public int getSendDay() {
         return sendDay;
+    }
+
+    @Override
+    public String toString() {
+        return "Parcel{" +
+                "description='" + getDescription() + '\'' +
+                ", weight=" + getWeight() +
+                ", deliveryAddress='" + getDeliveryAddress() + '\'' +
+                ", sendDay=" + getSendDay() +
+                '}';
     }
 }
