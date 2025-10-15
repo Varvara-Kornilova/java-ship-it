@@ -32,6 +32,9 @@ public class DeliveryApp {
                     case 3:
                         parcelController.calculateCosts();
                         break;
+                    case 4:
+                        parcelController.reportStatus();
+                        break;
                     case 0:
                         running = false;
                         break;
@@ -49,10 +52,8 @@ public class DeliveryApp {
         System.out.println("1 — Добавить посылку");
         System.out.println("2 — Отправить все посылки");
         System.out.println("3 — Посчитать стоимость доставки");
+        System.out.println("4 - Отследить все посылки");
         System.out.println("0 — Завершить");
     }
-
-
-
 }
 
