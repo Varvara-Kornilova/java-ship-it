@@ -8,6 +8,7 @@ public class ParcelController {
 
     Scanner scanner = new Scanner(System.in);
     List<Parcel> allParcels = new ArrayList<>();
+    List<Trackable> trackableParcels = new ArrayList<>();
 
     // КОД ДЛЯ ПРОВЕРКИ ЧТОБЫ НЕ ВПИСЫВАТЬ ДАННЫЕ
     StandardParcel doll = new StandardParcel("Кукла", 1, "Долгопрудный", 5);
@@ -23,7 +24,9 @@ public class ParcelController {
         allParcels.add(meat);
         allParcels.add(fish);
         allParcels.add(aquas);
+        trackableParcels.add(aquas);
         allParcels.add(glass);
+        trackableParcels.add(glass);
     }
 
 //    //ОСНОВНОЙ КОД КОТОРЫЙ Я ЗАКОММЕНТИРУЮ НА ВРЕМЯ ТЕСТОВЫХ ЗАПИСЕЙ
@@ -73,6 +76,17 @@ public class ParcelController {
         }
         System.out.println(totalCost);;
     }
+
+    public void reportStatus() {
+        for (Trackable trackable : trackableParcels) {
+            Parcel parcel = (Parcel) trackable;
+            System.out.println("Введите местоположение посылки <<" + parcel.getDescription() + ">>");
+            String newLocation = scanner.nextLine().trim();
+            trackable.reportStatus(newLocation);
+            parcel.setCurrentDeliveryLocation(newLocation);
+        }
+    }
+
 //
 //    public int chooseParcelType() {
 //        while (true) {
