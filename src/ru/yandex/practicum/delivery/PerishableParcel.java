@@ -2,6 +2,7 @@ package ru.yandex.practicum.delivery;
 
 public class PerishableParcel extends Parcel {
 
+    private final String type = "Скоропортящаяся посылка";
     private static final int BASE_COST = 3;
     private int timeToLive;
 
@@ -21,6 +22,11 @@ public class PerishableParcel extends Parcel {
     @Override
     public int getBaseCost() {
         return BASE_COST;
+    }
+
+    @Override
+    public String getType() {
+        return type;
     }
 
     @Override
