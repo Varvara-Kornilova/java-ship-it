@@ -2,9 +2,11 @@ package ru.yandex.practicum.delivery;
 
 public abstract class Parcel {
     //добавьте реализацию и другие необходимые классы
+
     private final String description;
     private final int weight;
     private final String deliveryAddress;
+    private String currentDeliveryLocation;
     private final int sendDay;
 
 
@@ -14,6 +16,10 @@ public abstract class Parcel {
         this.deliveryAddress = deliveryAddress;
         this.sendDay = sendDay;
     }
+
+    public abstract String getType();
+
+
 
     public void packageItem() {
         System.out.println("Посылка <<" + getDescription() + ">> упакована.");
@@ -53,5 +59,13 @@ public abstract class Parcel {
                 ", deliveryAddress='" + getDeliveryAddress() + '\'' +
                 ", sendDay=" + getSendDay() +
                 '}';
+    }
+
+    public void setCurrentDeliveryLocation(String currentDeliveryLocation) {
+        this.currentDeliveryLocation = currentDeliveryLocation;
+    }
+
+    public String getCurrentDeliveryLocation() {
+        return currentDeliveryLocation;
     }
 }
