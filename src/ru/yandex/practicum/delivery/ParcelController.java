@@ -14,52 +14,21 @@ public class ParcelController {
     ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(10);
     ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(5);
 
-    // КОД ДЛЯ ПРОВЕРКИ ЧТОБЫ НЕ ВПИСЫВАТЬ ДАННЫЕ
-//    StandardParcel doll = new StandardParcel("Кукла", 1, "Долгопрудный", 5);
-//    StandardParcel toy = new StandardParcel("Игрушка", 1, "Зеленоград", 3);
-//    PerishableParcel meat = new PerishableParcel("Колбаса", 2, "Клин", 28, 5);
-//    PerishableParcel fish = new PerishableParcel("Рыба", 4, "Солнечногорск", 30, 1);
-//    FragileParcel aquas = new FragileParcel("Аквариум", 5, "Солнечногорск", 25);
-//    FragileParcel glass = new FragileParcel("Стакан", 1, "Высоковск", 15);
-
-//    public void addParcel() {
-//
-//        standardBox.addParcel(doll);
-//        standardBox.addParcel(toy);
-//        perishableBox.addParcel(meat);
-//        perishableBox.addParcel(fish);
-//        fragileBox.addParcel(aquas);
-//        fragileBox.addParcel(glass);
-//
-//        trackableParcels.add(aquas);
-//        trackableParcels.add(glass);
-//
-//        allParcels.add(doll);
-//        allParcels.add(toy);
-//        allParcels.add(meat);
-//        allParcels.add(fish);
-//        allParcels.add(aquas);
-//        allParcels.add(glass);
-//    }
-
-
-//    //ОСНОВНОЙ КОД КОТОРЫЙ Я ЗАКОММЕНТИРУЮ НА ВРЕМЯ ТЕСТОВЫХ ЗАПИСЕЙ
     public void addParcel() {
-        // Подсказка: спросите тип посылки и необходимые поля, создайте объект и добавьте в allParcels
+
         int parcelType = chooseParcelType();
         String description = readValidDescription();
         int weight = readValidWeight();
         String deliveryAddress = readValidDeliveryAddress();
         int sendDay = readValidSendDay();
 
-
         if (parcelType == 1) {
             //создаем StandardParcel
             StandardParcel parcel = new StandardParcel(description, weight, deliveryAddress, sendDay);
             if (standardBox.addParcel(parcel)) {
                 allParcels.add(parcel);
+                System.out.print(parcel.toString());
                 printSuccess();
-                System.out.println(parcel.toString());
             }
 
         } else if (parcelType == 2) {
@@ -68,8 +37,8 @@ public class ParcelController {
             PerishableParcel parcel = new PerishableParcel(description, weight, deliveryAddress, sendDay, timeToLive);
             if (perishableBox.addParcel(parcel)) {
                 allParcels.add(parcel);
+                System.out.print(parcel.toString());
                 printSuccess();
-                System.out.println(parcel.toString());
             }
 
         } else {
@@ -78,8 +47,8 @@ public class ParcelController {
             if (fragileBox.addParcel(parcel)) {
                 allParcels.add(parcel);
                 trackableParcels.add(parcel);
+                System.out.print(parcel.toString());
                 printSuccess();
-                System.out.println(parcel.toString());
             }
         }
     }
@@ -93,7 +62,6 @@ public class ParcelController {
             parcel.packageItem();
             parcel.deliver();
         }
-        // Пройти по allParcels, вызвать packageItem() и deliver()
     }
 
     public void calculateCosts() {
@@ -142,23 +110,21 @@ public class ParcelController {
             System.out.println("Коробка пуста.");
         } else {
             for (Parcel parcel : parcels) {
-                System.out.println("— " + parcel.getDescription() + " (" + parcel.getWeight() + "кг.)");
+                System.out.println("— " + parcel.getDescription() + " (" + parcel.getWeight() + "кг)");
             }
         }
     }
 
-     public void printNumbersToChooseType() {
-         System.out.println("Введите число, соответствующее типу посылки: \n"
+    public void printNumbersToChooseType() {
+        System.out.println("Введите число, соответствующее типу посылки: \n"
                  + "1. Обычная посылка \n"
                  + "2. Скоропортящаяся посылка \n"
                  + "3. Хрупкая посылка \n");
-     }
-
+    }
 
     public int chooseParcelType() {
         while (true) {
             printNumbersToChooseType();
-
             String input = scanner.nextLine().trim();
 
             if (input.isEmpty()) {
@@ -187,7 +153,6 @@ public class ParcelController {
             }
         }
     }
-
 
     private String readValidDescription() {
         while (true) {
@@ -220,10 +185,12 @@ public class ParcelController {
                     System.out.println("Число не может быть отрицательным, повторите ввод.");
                     continue;
                 }
+
                 if (weight < 1) {
                     System.out.println("Вес не может быть равен 0.");
                     continue;
                 }
+
                 return weight;
             } catch (NumberFormatException e) {
                 System.out.println("Введите вес в формате целого числа.");
@@ -262,6 +229,7 @@ public class ParcelController {
                     System.out.println("День должен быть от 1 до 30. Попробуйте снова.");
                     continue;
                 }
+
                 return sendDay;
             } catch (NumberFormatException e) {
                 System.out.println("Пожалуйста, введите целое число от 1 до 30.");
@@ -291,6 +259,7 @@ public class ParcelController {
                     System.out.println("Доставка занимает минимум 1 день, мы не можем принять такую посылку.");
                     continue;
                 }
+
                 return timeToLive;
             } catch (NumberFormatException e) {
                 System.out.println("Пожалуйста, введите целое число от 1 до 30.");
@@ -299,7 +268,7 @@ public class ParcelController {
     }
 
     private void printSuccess() {
-        System.out.println("Операция выполнена.");
+        System.out.println(" успешно добавлена.");
     }
 
     private void printEmptyFieldError() {

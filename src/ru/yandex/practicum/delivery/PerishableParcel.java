@@ -31,12 +31,10 @@ public class PerishableParcel extends Parcel {
 
     @Override
     public String toString() {
-        return "PerishableParcel{" +
-                "description='" + getDescription() + '\'' +
-                ", weight=" + getWeight() +
-                ", deliveryAddress='" + getDeliveryAddress() + '\'' +
-                ", sendDay=" + getSendDay() +
-                ", timeToLive=" + getTimeToLive() +
-                '}';
+        return "Посылка <<" + getDescription()
+                + ">>, вес: " + getWeight()
+                + "кг, адрес доставки <<" + getDeliveryAddress()
+                + ">>, день отправления: " + getSendDay()
+                + ", допустимое количеств дней для доставки: " + getTimeToLive();
     }
 }

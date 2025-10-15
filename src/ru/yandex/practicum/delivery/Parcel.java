@@ -9,7 +9,6 @@ public abstract class Parcel {
     private String currentDeliveryLocation;
     private final int sendDay;
 
-
     public Parcel(String description, int weight, String deliveryAddress, int sendDay) {
         this.description = description;
         this.weight = weight;
@@ -19,14 +18,13 @@ public abstract class Parcel {
 
     public abstract String getType();
 
-
-
     public void packageItem() {
         System.out.println("Посылка <<" + getDescription() + ">> упакована.");
     }
 
     public void deliver() {
-        System.out.println("Посылка <<" + getDescription() + ">> отправлена по адресу <<" + getDeliveryAddress() + ">>");
+        System.out.println("Посылка <<" + getDescription()
+                + ">> отправлена по адресу <<" + getDeliveryAddress() + ">>.");
     }
 
     public abstract int getBaseCost();
@@ -53,12 +51,10 @@ public abstract class Parcel {
 
     @Override
     public String toString() {
-        return "Parcel{" +
-                "description='" + getDescription() + '\'' +
-                ", weight=" + getWeight() +
-                ", deliveryAddress='" + getDeliveryAddress() + '\'' +
-                ", sendDay=" + getSendDay() +
-                '}';
+        return "Посылка <<" + getDescription() +
+                ">>, вес: " + getWeight() +
+                "кг, адрес доставки <<" + getDeliveryAddress() +
+                ">>, день отправления: " + getSendDay();
     }
 
     public void setCurrentDeliveryLocation(String currentDeliveryLocation) {

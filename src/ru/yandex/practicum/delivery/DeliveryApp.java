@@ -10,6 +10,7 @@ public class DeliveryApp {
         ParcelController parcelController = new ParcelController();
 
         boolean running = true;
+
         while (running) {
             showMenu();
             String input = scanner.nextLine();
@@ -51,7 +52,7 @@ public class DeliveryApp {
     }
 
     private static void showMenu() {
-        System.out.println("");
+        System.out.println();
         System.out.println("Выберите действие:");
         System.out.println("1 — Добавить посылку");
         System.out.println("2 — Отправить все посылки");
