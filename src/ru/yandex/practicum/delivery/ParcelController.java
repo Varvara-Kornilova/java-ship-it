@@ -6,13 +6,17 @@ import java.util.Scanner;
 
 public class ParcelController {
 
-    Scanner scanner = new Scanner(System.in);
-    List<Parcel> allParcels = new ArrayList<>();
-    List<Trackable> trackableParcels = new ArrayList<>();
+    private static final int STANDARD_BOX_CAPACITY = 50;
+    private static final int PERISHABLE_BOX_CAPACITY = 10;
+    private static final int FRAGILE_BOX_CAPACITY = 5;
 
-    ParcelBox<StandardParcel> standardBox = new ParcelBox<>(50);
-    ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(10);
-    ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(5);
+    private final Scanner scanner = new Scanner(System.in);
+    private final List<Parcel> allParcels = new ArrayList<>();
+    private final List<Trackable> trackableParcels = new ArrayList<>();
+
+    private final ParcelBox<StandardParcel> standardBox = new ParcelBox<>(STANDARD_BOX_CAPACITY);
+    private final ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(PERISHABLE_BOX_CAPACITY);
+    private final ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(FRAGILE_BOX_CAPACITY);
 
     public void addParcel() {
 
@@ -70,7 +74,7 @@ public class ParcelController {
         for (Parcel parcel : allParcels) {
             totalCost += parcel.calculateDeliveryCost();
         }
-        System.out.println(totalCost);;
+        System.out.println("Общая сумма всех посылок, переданных на доставку, составляет " + totalCost + "$");
     }
 
     public void reportStatus() {
