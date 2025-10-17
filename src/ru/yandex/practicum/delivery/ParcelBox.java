@@ -8,7 +8,7 @@ public class ParcelBox<T extends Parcel> {
     private final int maxWeight;
 
     private int currentWeight = 0;
-    List<T> parcelsInBox = new ArrayList<>();
+    private final List<T> parcelsInBox = new ArrayList<>();
 
     public ParcelBox(int maxWeight) {
         this.maxWeight = maxWeight;
