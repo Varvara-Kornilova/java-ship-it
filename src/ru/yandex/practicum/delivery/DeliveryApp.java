@@ -4,12 +4,11 @@ import java.util.Scanner;
 
 public class DeliveryApp {
 
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final ParcelController parcelController = new ParcelController();
+    private static boolean running = true;
+
     public static void main(String[] args) {
-
-        Scanner scanner = new Scanner(System.in);
-        ParcelController parcelController = new ParcelController();
-
-        boolean running = true;
 
         while (running) {
             showMenu();
@@ -24,26 +23,13 @@ public class DeliveryApp {
                 int choice = Integer.parseInt(input);
 
                 switch (choice) {
-                    case 1:
-                        parcelController.addParcel();
-                        break;
-                    case 2:
-                        parcelController.sendParcels();
-                        break;
-                    case 3:
-                        parcelController.calculateCosts();
-                        break;
-                    case 4:
-                        parcelController.reportStatus();
-                        break;
-                    case 5:
-                        parcelController.showBoxContents();
-                        break;
-                    case 0:
-                        running = false;
-                        break;
-                    default:
-                        System.out.println("Неверный выбор. \n");
+                    case 1 -> parcelController.addParcel();
+                    case 2 -> parcelController.sendParcels();
+                    case 3 -> parcelController.calculateCosts();
+                    case 4 -> parcelController.reportStatus();
+                    case 5 -> parcelController.showBoxContents();
+                    case 0 -> running = false;
+                    default -> System.out.println("Неверный выбор. \n");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Неверный формат. Пожалуйста, введите номер команды (от 0 до 5). \n");
