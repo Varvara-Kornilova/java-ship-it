@@ -1,7 +1,6 @@
 package ru.yandex.practicum.delivery;
 
 public abstract class Parcel {
-    //добавьте реализацию и другие необходимые классы
 
     private final String description;
     private final int weight;
@@ -16,32 +15,30 @@ public abstract class Parcel {
         this.sendDay = sendDay;
     }
 
-    public abstract String getType();
-
-    public void packageItem() {
+    protected void packageItem() {
         System.out.println("Посылка <<" + getDescription() + ">> упакована.");
     }
 
-    public void deliver() {
+    protected void deliver() {
         System.out.println("Посылка <<" + getDescription()
                 + ">> отправлена по адресу <<" + getDeliveryAddress() + ">>.");
     }
 
-    public abstract int getBaseCost();
+    protected abstract int getBaseCost();
 
     public int calculateDeliveryCost() {
         return getWeight() * getBaseCost();
     }
 
-    public String getDescription() {
+    protected String getDescription() {
         return description;
     }
 
-    public int getWeight() {
+    protected int getWeight() {
         return weight;
     }
 
-    public String getDeliveryAddress() {
+    protected String getDeliveryAddress() {
         return deliveryAddress;
     }
 
@@ -57,11 +54,13 @@ public abstract class Parcel {
                 ">>, день отправления: " + getSendDay();
     }
 
-    public void setCurrentDeliveryLocation(String currentDeliveryLocation) {
+    protected void setCurrentDeliveryLocation(String currentDeliveryLocation) {
         this.currentDeliveryLocation = currentDeliveryLocation;
     }
 
-    public String getCurrentDeliveryLocation() {
+    protected String getCurrentDeliveryLocation() {
         return currentDeliveryLocation;
     }
+
+    protected abstract String getType();
 }
