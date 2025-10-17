@@ -4,7 +4,7 @@ public class PerishableParcel extends Parcel {
 
     private final String type = "Скоропортящаяся посылка";
     private static final int BASE_COST = 3;
-    private int timeToLive;
+    private final int timeToLive;
 
     public PerishableParcel(String description, int weight, String deliveryAddress, int sendDay, int timeToLive) {
         super(description, weight, deliveryAddress, sendDay);
@@ -35,6 +35,6 @@ public class PerishableParcel extends Parcel {
                 + ">>, вес: " + getWeight()
                 + "кг, адрес доставки <<" + getDeliveryAddress()
                 + ">>, день отправления: " + getSendDay()
-                + ", допустимое количеств дней для доставки: " + getTimeToLive();
+                + ", допустимое количество дней для доставки: " + getTimeToLive();
     }
 }
