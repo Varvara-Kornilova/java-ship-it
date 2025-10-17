@@ -6,14 +6,13 @@ import ru.yandex.practicum.delivery.PerishableParcel;
 import ru.yandex.practicum.delivery.StandardParcel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class DeliveryCostTest {
 
-    StandardParcel standardParcel = new StandardParcel("Плед", 2, "г. Москва", 1);
-    PerishableParcel perishableParcel = new PerishableParcel("Колбаса", 5, "г. Дмитров",
+    private final StandardParcel standardParcel = new StandardParcel("Плед", 2, "г. Москва", 1);
+    private final PerishableParcel perishableParcel = new PerishableParcel("Колбаса", 5, "г. Дмитров",
             3, 5);
-    FragileParcel fragileParcel = new FragileParcel("Аквариум", 1, "г. Солнечногорск",
+    private final FragileParcel fragileParcel = new FragileParcel("Аквариум", 1, "г. Солнечногорск",
             28);
 
     @Test
