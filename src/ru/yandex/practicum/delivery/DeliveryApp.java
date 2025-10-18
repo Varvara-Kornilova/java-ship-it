@@ -4,12 +4,16 @@ import java.util.Scanner;
 
 public class DeliveryApp {
 
-    private static final Scanner scanner = new Scanner(System.in);
-    private static final ParcelController parcelController = new ParcelController();
-    private static boolean running = true;
+    private final Scanner scanner = new Scanner(System.in);
+    private final ParcelController parcelController = new ParcelController();
+    private boolean running = true;
 
     public static void main(String[] args) {
+        DeliveryApp app = new DeliveryApp();
+        app.run();
+    }
 
+    private void run() {
         while (running) {
             showMenu();
             String input = scanner.nextLine();
