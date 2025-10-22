@@ -1,19 +1,16 @@
 package ru.yandex.practicum;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.delivery.FragileParcel;
-import ru.yandex.practicum.delivery.ParcelBox;
-import ru.yandex.practicum.delivery.PerishableParcel;
-import ru.yandex.practicum.delivery.StandardParcel;
+import ru.yandex.practicum.delivery.*;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DeliveryBoxParcelAddTest {
 
-    private final ParcelBox<StandardParcel> standardBox = new ParcelBox<>(50);
-    private final ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(50);
-    private final ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(50);
+    private final ParcelBox<StandardParcel> standardBox = new ParcelBox<>(50, ParcelCategory.STANDARD);
+    private final ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(50, ParcelCategory.PERISHABLE);
+    private final ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(50, ParcelCategory.FRAGILE);
 
     @Test
     public void shouldNotExceedMaxWeightWhenAddingNewParcelWithWeight_5_AndCurrentWeight_10() {

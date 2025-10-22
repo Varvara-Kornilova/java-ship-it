@@ -34,7 +34,8 @@ public class DeliveryApp {
                     case 7 -> parcelController.reportDeliveryCompleted();
                     case 8 -> parcelController.printAllParcels();
                     case 9 -> parcelController.showArchive();
-                    case 0 -> running = false;
+                    case 0 -> { sayGoodBye(); running = false;
+                    }
                     default -> System.out.println("Неверный выбор. \n");
                 }
             } catch (NumberFormatException e) {
@@ -61,6 +62,13 @@ public class DeliveryApp {
         System.out.println("║ 0 — Завершить работу                   ║");
         System.out.println("╚════════════════════════════════════════╝");
         System.out.print("\nВаш выбор ➤ ");
+    }
+
+    private static void sayGoodBye() {
+        System.out.println();
+        System.out.println("   💙 Спасибо за работу!   ");
+        System.out.println("   Всего доброго и удачи!  ");
+        System.out.println();
     }
 }
 

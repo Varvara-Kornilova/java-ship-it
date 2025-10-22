@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public abstract class Parcel {
 
-    private String type;
+    private ParcelCategory type;
     private final String description;
     private final int weight;
     private final String deliveryAddress;
@@ -61,12 +61,12 @@ public abstract class Parcel {
 
     @Override
     public String toString() {
-        return getType() + " <<"
+        return "*" + getStatus() +"* /"
+                + getType() + "/ <<"
                 + getDescription() +
                 ">>, вес: " + getWeight() +
                 "кг, адрес доставки <<" + getDeliveryAddress() +
-                ">>, день отправления: " + getSendDay() +
-                ", статус: *" + getStatus() +"*";
+                ">>, день отправления: " + getSendDay();
     }
 
     protected void setCurrentDeliveryLocation(String currentDeliveryLocation) {
@@ -77,7 +77,7 @@ public abstract class Parcel {
         return currentDeliveryLocation;
     }
 
-    protected abstract String getType();
+    protected abstract ParcelCategory getType();
 
 
     @Override

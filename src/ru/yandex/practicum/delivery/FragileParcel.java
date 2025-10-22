@@ -3,7 +3,7 @@ package ru.yandex.practicum.delivery;
 public class FragileParcel extends Parcel implements Trackable {
 
     private static final int BASE_COST = 4;
-    private final String type = "Хрупкая посылка";
+    private final ParcelCategory type = ParcelCategory.FRAGILE;
 
     public FragileParcel(String description, int weight, String deliveryAddress, int sendDay) {
         super(description, weight, deliveryAddress, sendDay);
@@ -27,7 +27,7 @@ public class FragileParcel extends Parcel implements Trackable {
     }
 
     @Override
-    public String getType() {
-        return type;
+    public ParcelCategory getType() {
+        return ParcelCategory.FRAGILE;
     }
 }

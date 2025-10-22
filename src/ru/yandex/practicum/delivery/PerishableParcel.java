@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class PerishableParcel extends Parcel {
 
-    private final String type = "Скоропортящаяся посылка";
+    private final ParcelCategory type = ParcelCategory.PERISHABLE;
     private static final int BASE_COST = 3;
     private final int timeToLive;
 
@@ -27,19 +27,19 @@ public class PerishableParcel extends Parcel {
     }
 
     @Override
-    public String getType() {
-        return type;
+    public ParcelCategory getType() {
+        return ParcelCategory.PERISHABLE;
     }
 
     @Override
     public String toString() {
-        return  getType() + " <<"
+        return  "*" + getStatus() +"* /"
+                + getType() + "/ <<"
                 + getDescription()
                 + ">>, вес: " + getWeight()
                 + "кг, адрес доставки <<" + getDeliveryAddress()
                 + ">>, день отправления: " + getSendDay()
-                + ", допустимое количество дней для доставки: " + getTimeToLive()
-                + ", статус: *" + getStatus() +"*";
+                + ", допустимое количество дней для доставки: " + getTimeToLive();
     }
 
 

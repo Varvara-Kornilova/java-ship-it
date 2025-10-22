@@ -6,12 +6,29 @@ import java.util.List;
 public class ParcelBox<T extends Parcel> {
 
     private final int maxWeight;
+    private boolean isSent = false;
+    private final ParcelCategory boxType;
+    private final boolean isTrackable;
+
+    public ParcelBox(int maxWeight, ParcelCategory boxType, boolean isTrackable) {
+        this.maxWeight = maxWeight;
+        this.boxType = boxType;
+        this.isTrackable = isTrackable;
+    }
+
+    public void setSent(boolean sent) {
+        isSent = sent;
+    }
+
+    public boolean isSent() {
+        return isSent;
+    }
 
     private int currentWeight = 0;
     private final List<T> parcelsInBox = new ArrayList<>();
 
-    public ParcelBox(int maxWeight) {
-        this.maxWeight = maxWeight;
+    public ParcelCategory getBoxType() {
+        return boxType;
     }
 
     public boolean addParcel(T parcel) {
@@ -40,5 +57,9 @@ public class ParcelBox<T extends Parcel> {
 
     public void setCurrentWeight(int currentWeight) {
         this.currentWeight = currentWeight;
+    }
+
+    public boolean isTrackable() {
+        return isTrackable;
     }
 }

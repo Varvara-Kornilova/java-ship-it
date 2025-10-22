@@ -2,7 +2,7 @@ package ru.yandex.practicum.delivery;
 
 public class StandardParcel extends Parcel {
 
-    private final String type = "Обычная посылка";
+    private final ParcelCategory type = ParcelCategory.STANDARD;
     private static final int BASE_COST = 2;
 
     public StandardParcel(String description, int weight, String deliveryAddress, int sendDay) {
@@ -15,7 +15,7 @@ public class StandardParcel extends Parcel {
     }
 
     @Override
-    public String getType() {
-        return type;
+    public ParcelCategory getType() {
+        return ParcelCategory.STANDARD;
     }
 }
