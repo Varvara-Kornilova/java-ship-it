@@ -8,9 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DeliveryBoxParcelAddTest {
 
-    private final ParcelBox<StandardParcel> standardBox = new ParcelBox<>(50, ParcelCategory.STANDARD);
-    private final ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(50, ParcelCategory.PERISHABLE);
-    private final ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(50, ParcelCategory.FRAGILE);
+    private final ParcelBox<StandardParcel> standardBox = new ParcelBox<>(50, ParcelCategory.STANDARD, false);
+    private final ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(50, ParcelCategory.PERISHABLE, false);
+    private final ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(50, ParcelCategory.FRAGILE, true);
 
     @Test
     public void shouldNotExceedMaxWeightWhenAddingNewParcelWithWeight_5_AndCurrentWeight_10() {
