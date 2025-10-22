@@ -1,5 +1,7 @@
 package ru.yandex.practicum.delivery;
 
+import java.util.Objects;
+
 public class PerishableParcel extends Parcel {
 
     private final String type = "Скоропортящаяся посылка";
@@ -31,10 +33,26 @@ public class PerishableParcel extends Parcel {
 
     @Override
     public String toString() {
-        return "Посылка <<" + getDescription()
+        return  getType() + " <<"
+                + getDescription()
                 + ">>, вес: " + getWeight()
                 + "кг, адрес доставки <<" + getDeliveryAddress()
                 + ">>, день отправления: " + getSendDay()
-                + ", допустимое количество дней для доставки: " + getTimeToLive();
+                + ", допустимое количество дней для доставки: " + getTimeToLive()
+                + ", статус: *" + getStatus() +"*";
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        PerishableParcel that = (PerishableParcel) o;
+        return timeToLive == that.timeToLive;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), timeToLive);
     }
 }

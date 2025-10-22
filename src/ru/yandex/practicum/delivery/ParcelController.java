@@ -1,6 +1,7 @@
 package ru.yandex.practicum.delivery;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
 
@@ -13,10 +14,13 @@ public class ParcelController {
     private final Scanner scanner = new Scanner(System.in);
     private final List<Parcel> allParcels = new ArrayList<>();
     private final List<Trackable> trackableParcels = new ArrayList<>();
+    private final List<Parcel> archive = new ArrayList<>();
 
     private final ParcelBox<StandardParcel> standardBox = new ParcelBox<>(STANDARD_BOX_CAPACITY);
     private final ParcelBox<PerishableParcel> perishableBox = new ParcelBox<>(PERISHABLE_BOX_CAPACITY);
     private final ParcelBox<FragileParcel> fragileBox = new ParcelBox<>(FRAGILE_BOX_CAPACITY);
+
+    private boolean isSent = false;
 
     public void addParcel() {
 
@@ -30,8 +34,10 @@ public class ParcelController {
             //создаем StandardParcel
             StandardParcel parcel = new StandardParcel(description, weight, deliveryAddress, sendDay);
             if (standardBox.addParcel(parcel)) {
+                parcel.changeStatus(Status.CREATED);
                 allParcels.add(parcel);
-                System.out.print(parcel.toString());
+                archive.add(parcel);
+                System.out.print(parcel);
                 printSuccess();
             }
 
@@ -40,8 +46,10 @@ public class ParcelController {
             int timeToLive = readValidTimeToLive();
             PerishableParcel parcel = new PerishableParcel(description, weight, deliveryAddress, sendDay, timeToLive);
             if (perishableBox.addParcel(parcel)) {
+                parcel.changeStatus(Status.CREATED);
+                archive.add(parcel);
                 allParcels.add(parcel);
-                System.out.print(parcel.toString());
+                System.out.print(parcel);
                 printSuccess();
             }
 
@@ -49,9 +57,11 @@ public class ParcelController {
             //создаем FragileParcel
             FragileParcel parcel = new FragileParcel(description, weight, deliveryAddress, sendDay);
             if (fragileBox.addParcel(parcel)) {
+                parcel.changeStatus(Status.CREATED);
                 allParcels.add(parcel);
                 trackableParcels.add(parcel);
-                System.out.print(parcel.toString());
+                archive.add(parcel);
+                System.out.print(parcel);
                 printSuccess();
             }
         }
@@ -62,14 +72,34 @@ public class ParcelController {
             System.out.println("Вы пока не добавили ни одной посылки");
             return;
         }
-        for (Parcel parcel : allParcels) {
-            parcel.packageItem();
-            parcel.deliver();
+        if (!isSent) {
+            for (Parcel parcel : allParcels) {
+                parcel.packageItem();
+                parcel.deliver();
+                parcel.changeStatus(Status.SENT);
+                isSent = true;
+            }
+        } else {
+            System.out.println("Посылки уже отправлены.");
+        }
+    }
+
+    public ArrayList<Parcel> getArchive() {
+        return new ArrayList<>(archive);
+    }
+
+    public void showArchive() {
+        if (getArchive().isEmpty()) {
+            System.out.println("Архив пока пуст.");
+            return;
+        }
+        for (Parcel parcel : getArchive()) {
+            System.out.println(parcel);
         }
     }
 
     public void calculateCosts() {
-        // Посчитать общую стоимость всех доставок и вывести на экран
+
         int totalCost = 0;
         for (Parcel parcel : allParcels) {
             totalCost += parcel.calculateDeliveryCost();
@@ -77,21 +107,140 @@ public class ParcelController {
         System.out.println("Общая сумма всех посылок, переданных на доставку, составляет " + totalCost + "$");
     }
 
-    public void reportStatus() {
+    public void reportDeliveryCompleted() {
+        if (allParcels.isEmpty()) {
+            System.out.println("У вас нет ни одной посылки.");
+            return;
+        }
+        System.out.println("Введите название посылки, которая была доставлена:");
+        String parcelName = scanner.nextLine().trim();
+        makeDeliveryCompleted(parcelName);
+    }
+
+    public void makeDeliveryCompleted(String parcelName) {
+        // Сначала проверим, есть ли такая посылка
+        boolean exists = allParcels.stream()
+                .anyMatch(parcel -> parcel.getDescription().equals(parcelName));
+
+        if (!exists) {
+            System.out.println("Такой посылки в списке нет.");
+            return;
+        }
+
+        // Если есть дубликаты — уточняем тип
+        long count = allParcels.stream()
+                .filter(parcel -> parcel.getDescription().equals(parcelName))
+                .count();
+
+        String requiredType = null;
+
+        if (count > 1) {
+            System.out.println("Укажите тип посылки, которая была доставлена:");
+            requiredType = scanner.nextLine().trim();
+        }
+
+        // Используем итератор для безопасного удаления
+        Iterator<Parcel> iterator = allParcels.iterator();
+
+        while (iterator.hasNext()) {
+            Parcel parcel = iterator.next();
+
+            boolean matchesName = parcel.getDescription().equals(parcelName);
+            boolean matchesType = (requiredType == null) || parcel.getType().equals(requiredType);
+
+            if (matchesName && matchesType) {
+                System.out.println("Посылка прибыла в пункт назначения.");
+                System.out.println("Вынимаем из коробки.");
+
+                // Удаляем из соответствующей коробки (оставим if-else пока)
+                if (parcel.getType().equals("Обычная посылка")) {
+                    standardBox.removeParcel((StandardParcel) parcel);
+                } else if (parcel.getType().equals("Скоропортящаяся посылка")) {
+                    perishableBox.removeParcel((PerishableParcel) parcel);
+                } else if (parcel.getType().equals("Хрупкая посылка")) {
+                    fragileBox.removeParcel((FragileParcel) parcel);
+                    trackableParcels.remove(parcel);
+                }
+
+                // Безопасное удаление из allParcels
+                iterator.remove();
+
+                // Меняем статус ДО удаления (или после — зависит от логики)
+                parcel.changeStatus(Status.DELIVERED);
+
+                System.out.println("Уведомление о поступлении посылки <<" + parcel.getDescription() + ">> отправлено получателю.");
+
+                if (allParcels.isEmpty()) {
+                    System.out.println("Все посылки доставлены, можно отдыхать!");
+                }
+
+                return; // Удалили одну — выходим
+            }
+        }
+
+        // Если дошли сюда — не нашли подходящую посылку (например, неверный тип при дубликатах)
+        if (count < 1) {
+            System.out.println("Не найдено посылки с указанным типом.");
+        }
+    }
+
+    public void changeCurrentDeliveryLocation() {
         if (trackableParcels.isEmpty()) {
             System.out.println("У вас нет отслеживаемых посылок (коробка с хрупкими посылками пуста).");
             return;
         }
+
+        System.out.println("Введите название отслеживаемой посылки:");
+        String parcelName = scanner.nextLine().trim();
+
         for (Trackable trackable : trackableParcels) {
             Parcel parcel = (Parcel) trackable;
-            System.out.print("Введите местоположение посылки <<" + parcel.getDescription() + ">>: ");
-            String newLocation = scanner.nextLine().trim();
-            trackable.reportStatus(newLocation);
-            parcel.setCurrentDeliveryLocation(newLocation);
+
+            if (parcelName.isEmpty()) {
+                System.out.println("Пожалуйста, введите команду. \n");
+                return;
+            }
+
+            if (parcelName.equals(parcel.getDescription())) {
+                System.out.print("Введите местоположение посылки <<" + parcel.getDescription() + ">>: ");
+                String newLocation = scanner.nextLine().trim();
+                trackable.reportStatus(newLocation);
+                parcel.setCurrentDeliveryLocation(newLocation);
+                parcel.changeStatus(Status.IN_TRANSIT);
+
+                if (parcel.getCurrentDeliveryLocation().equals(parcel.getDeliveryAddress())) {
+                    makeDeliveryCompleted(parcelName);
+                    parcel.changeStatus(Status.DELIVERED);
+                }
+                return;
+            }
+        }
+        System.out.println("Такой посылки нет. Проверьте название.");
+    }
+
+    public void showCurrentDeliveryLocation() {
+
+        if (trackableParcels.isEmpty()) {
+            System.out.println("У вас нет отслеживаемых посылок (коробка с хрупкими посылками пуста).");
+            return;
+        }
+
+        System.out.println("Введите название посылки: ");
+        String description = scanner.nextLine().trim();
+
+        for (Trackable trackable : trackableParcels) {
+            Parcel parcel = (Parcel) trackable;
+            if (parcel.getDescription().equals(description)) {
+                System.out.println(parcel.getCurrentDeliveryLocation());
+            }
         }
     }
 
     public void showBoxContents() {
+        if (allParcels.isEmpty()) {
+            System.out.println("У вас пока нет посылок, все коробки пусты.");
+            return;
+        }
         int parcelType = chooseParcelType();
         switch (parcelType) {
             case 1:
@@ -106,6 +255,16 @@ public class ParcelController {
                 System.out.println("Содержимое коробки для хрупких посылок:");
                 printParcels(fragileBox.getAllParcels());
                 break;
+        }
+    }
+
+    public void printAllParcels() {
+        if (allParcels.isEmpty()) {
+            System.out.println("У вас нет ни одной посылки.");
+            return;
+        }
+        for (Parcel parcel : allParcels) {
+            System.out.println(parcel.toString());
         }
     }
 

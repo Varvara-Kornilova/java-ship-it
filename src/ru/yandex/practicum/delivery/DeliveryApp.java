@@ -1,5 +1,7 @@
 package ru.yandex.practicum.delivery;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class DeliveryApp {
@@ -26,8 +28,12 @@ public class DeliveryApp {
                     case 1 -> parcelController.addParcel();
                     case 2 -> parcelController.sendParcels();
                     case 3 -> parcelController.calculateCosts();
-                    case 4 -> parcelController.reportStatus();
+                    case 4 -> parcelController.changeCurrentDeliveryLocation();
                     case 5 -> parcelController.showBoxContents();
+                    case 6 -> parcelController.showCurrentDeliveryLocation();
+                    case 7 -> parcelController.reportDeliveryCompleted();
+                    case 8 -> parcelController.printAllParcels();
+                    case 9 -> parcelController.showArchive();
                     case 0 -> running = false;
                     default -> System.out.println("Неверный выбор. \n");
                 }
@@ -39,13 +45,22 @@ public class DeliveryApp {
 
     private static void showMenu() {
         System.out.println();
-        System.out.println("Выберите действие:");
-        System.out.println("1 — Добавить посылку");
-        System.out.println("2 — Отправить все посылки");
-        System.out.println("3 — Посчитать стоимость доставки");
-        System.out.println("4 - Отследить все посылки");
-        System.out.println("5 - Показать содержимое коробки");
-        System.out.println("0 — Завершить \n");
+        System.out.println("╔════════════════════════════════════════╗");
+        System.out.println("║                 МЕНЮ                   ║");
+        System.out.println("╠════════════════════════════════════════╣");
+        System.out.println("║ 1 — Добавить посылку                   ║");
+        System.out.println("║ 2 — Отправить все посылки              ║");
+        System.out.println("║ 3 — Посчитать стоимость доставки       ║");
+        System.out.println("║ 4 — Изменить статус посылки            ║");
+        System.out.println("║ 5 — Показать содержимое коробки        ║");
+        System.out.println("║ 6 — Отследить посылку                  ║");
+        System.out.println("║ 7 — Сообщить о поступлении             ║");
+        System.out.println("║ 8 — Показать все активные посылки      ║");
+        System.out.println("║ 9 — Посмотреть архив                   ║");
+        System.out.println("║                                        ║");
+        System.out.println("║ 0 — Завершить работу                   ║");
+        System.out.println("╚════════════════════════════════════════╝");
+        System.out.print("\nВаш выбор ➤ ");
     }
 }
 

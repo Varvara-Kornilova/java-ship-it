@@ -29,6 +29,11 @@ public class ParcelBox<T extends Parcel> {
         }
     }
 
+    public boolean removeParcel(T parcel) {
+        parcelsInBox.remove(parcel);
+        return true;
+    }
+
     public List<T> getAllParcels() {
         return parcelsInBox;
     }
