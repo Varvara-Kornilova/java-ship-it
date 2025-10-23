@@ -4,11 +4,10 @@ import java.util.Objects;
 
 public abstract class Parcel {
 
-    private ParcelCategory type;
     private final String description;
     private final int weight;
     private final String deliveryAddress;
-    private String currentDeliveryLocation = "Посылка отправлена из почтового отделения";
+    private String currentDeliveryLocation = "Посылка создана и ждет отправки.";
     private final int sendDay;
 
     private Status status;
@@ -79,20 +78,19 @@ public abstract class Parcel {
 
     protected abstract ParcelCategory getType();
 
-
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         Parcel parcel = (Parcel) o;
         return weight == parcel.weight
                 && sendDay == parcel.sendDay
-                && Objects.equals(type, parcel.type)
                 && Objects.equals(description, parcel.description)
-                && Objects.equals(deliveryAddress, parcel.deliveryAddress);
+                && Objects.equals(deliveryAddress, parcel.deliveryAddress)
+                && getType() == parcel.getType();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(type, description, weight, deliveryAddress, sendDay);
+        return Objects.hash(getType(), description, weight, deliveryAddress, sendDay);
     }
 }
