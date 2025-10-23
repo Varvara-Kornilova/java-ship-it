@@ -1,9 +1,7 @@
 package ru.yandex.practicum.delivery;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ParcelController {
 
@@ -20,6 +18,10 @@ public class ParcelController {
     private ParcelBox<PerishableParcel> currentPerishableBox;
     private ParcelBox<FragileParcel> currentFragileBox;
 
+    private final List<ParcelBox<StandardParcel>> standardBoxes = new ArrayList<>();
+    private final List<ParcelBox<PerishableParcel>> perishableBoxes = new ArrayList<>();
+    private final List<ParcelBox<FragileParcel>> fragileBoxes = new ArrayList<>();
+
     private final List<ParcelBox<? extends Parcel>> allBoxes = new ArrayList<>();
 
     public ParcelController() {
@@ -31,20 +33,74 @@ public class ParcelController {
     public void createNewBoxForType(ParcelCategory type) {
         switch (type) {
             case STANDARD -> {
-                currentStandardBox = new ParcelBox<>(STANDARD_BOX_CAPACITY, ParcelCategory.STANDARD, false);
-                allBoxes.add(currentStandardBox);
+                ParcelBox<StandardParcel> box = new ParcelBox<>(STANDARD_BOX_CAPACITY, type, false);
+                currentStandardBox = box;
+                standardBoxes.add(box);
+                allBoxes.add(box); // ← обязательно добавляем в общий список
             }
             case PERISHABLE -> {
-                currentPerishableBox = new ParcelBox<>(PERISHABLE_BOX_CAPACITY, ParcelCategory.PERISHABLE, false);
-                allBoxes.add(currentPerishableBox);
+                ParcelBox<PerishableParcel> box = new ParcelBox<>(PERISHABLE_BOX_CAPACITY, type, false);
+                currentPerishableBox = box;
+                perishableBoxes.add(box);
+                allBoxes.add(box); // ← обязательно
             }
             case FRAGILE -> {
-                currentFragileBox = new ParcelBox<>(FRAGILE_BOX_CAPACITY, ParcelCategory.FRAGILE, true);
-                allBoxes.add(currentFragileBox);
+                ParcelBox<FragileParcel> box = new ParcelBox<>(FRAGILE_BOX_CAPACITY, type, true);
+                currentFragileBox = box;
+                fragileBoxes.add(box);
+                allBoxes.add(box); // ← обязательно
             }
         }
     }
 
+    private List<Parcel> findParcelsByName(String name) {
+        return allParcels.stream()
+                .filter(parcel -> parcel.getDescription().equals(name))
+                .collect(Collectors.toList());
+    }
+
+    private Parcel chooseParcelFromList(List<Parcel> parcels, String name) {
+        if (parcels.isEmpty()) {
+            System.out.println("Посылка с названием <<" + name + ">> не найдена.");
+            return null;
+        }
+
+        if (parcels.size() == 1) {
+            return parcels.get(0);
+        }
+
+        // Показываем список
+        System.out.println("\nНайдено несколько посылок с названием <<" + name + ">>:");
+        for (int i = 0; i < parcels.size(); i++) {
+            Parcel p = parcels.get(i);
+            System.out.println((i + 1) + ". " + p.getType() + ", вес: " + p.getWeight() + "кг, адрес: <<"
+                    + p.getDeliveryAddress() + ">>, статус: " + p.getStatus());
+        }
+
+        System.out.print("Выберите номер посылки: ");
+        int choice = readValidChoice(parcels.size());
+        return parcels.get(choice - 1);
+    }
+
+    private int readValidChoice(int max) {
+        while (true) {
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                System.out.print("Пожалуйста, введите номер: ");
+                continue;
+            }
+            try {
+                int num = Integer.parseInt(input);
+                if (num >= 1 && num <= max) {
+                    return num;
+                } else {
+                    System.out.print("Неверный номер. Введите число от 1 до " + max + ": ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.print("Неверный формат. Введите число: ");
+            }
+        }
+    }
 
     public void sendParcels() {
         if (allParcels.isEmpty()) {
@@ -113,64 +169,93 @@ public class ParcelController {
         String deliveryAddress = readValidDeliveryAddress();
         int sendDay = readValidSendDay();
 
+        // Проверка: вес посылки не должен превышать ёмкость коробки
+        if (weight > getMaxBoxCapacity(parcelType)) {
+            System.out.println("Ошибка: вес посылки (" + weight + " кг) превышает максимальную ёмкость коробки для этого типа ("
+                    + getMaxBoxCapacity(parcelType) + " кг).");
+            return;
+        }
+
         switch (parcelType) {
             case STANDARD -> {
-                if (weight > STANDARD_BOX_CAPACITY) {
-                    System.out.println("Ошибка: вес посылки (" + weight + " кг) превышает максимальную ёмкость коробки для стандартных посылок (" + STANDARD_BOX_CAPACITY + " кг).");
-                    return;
-                }
                 StandardParcel parcel = createStandardParcel(description, weight, deliveryAddress, sendDay);
-                // Если текущая коробка уже отправлена — создаём новую
+
+                // Если текущая коробка отправлена — создаём новую
                 if (currentStandardBox.isSent()) {
                     createNewBoxForType(ParcelCategory.STANDARD);
                 }
-                if (!currentStandardBox.addParcel(parcel)) {
+
+                boolean added = currentStandardBox.addParcel(parcel);
+                if (!added) {
+                    // Текущая коробка заполнена — отправляем и создаём новую
                     System.out.println("Текущая коробка заполнена. Отдаем в доставку и создаем новую.");
-                    sendIfNotSent(currentStandardBox); // или просто помечаем как отправленную
+                    sendIfNotSent(currentStandardBox);
                     createNewBoxForType(ParcelCategory.STANDARD);
-                    currentStandardBox.addParcel(parcel);
+                    added = currentStandardBox.addParcel(parcel);
                 }
+
+                if (!added) {
+                    System.out.println("Не удалось добавить посылку в коробку. Обратитесь к администратору.");
+                    return;
+                }
+
                 addParcelToSystem(parcel, parcel instanceof Trackable);
             }
 
             case PERISHABLE -> {
-                if (weight > PERISHABLE_BOX_CAPACITY) {
-                    System.out.println("Ошибка: вес посылки (" + weight + " кг) превышает максимальную ёмкость коробки для скоропортящихся посылок (" + PERISHABLE_BOX_CAPACITY + " кг).");
-                    return;
-                }
                 PerishableParcel parcel = createPerishableParcel(description, weight, deliveryAddress, sendDay);
+
                 if (currentPerishableBox.isSent()) {
                     createNewBoxForType(ParcelCategory.PERISHABLE);
                 }
-                if (!currentPerishableBox.addParcel(parcel)) {
+
+                boolean added = currentPerishableBox.addParcel(parcel);
+                if (!added) {
                     System.out.println("Текущая коробка заполнена. Отдаем в доставку и создаем новую.");
                     sendIfNotSent(currentPerishableBox);
                     createNewBoxForType(ParcelCategory.PERISHABLE);
-                    currentPerishableBox.addParcel(parcel);
+                    added = currentPerishableBox.addParcel(parcel);
                 }
+
+                if (!added) {
+                    System.out.println("Не удалось добавить посылку в коробку. Обратитесь к администратору.");
+                    return;
+                }
+
                 addParcelToSystem(parcel, parcel instanceof Trackable);
             }
 
             case FRAGILE -> {
-
-                if (weight > FRAGILE_BOX_CAPACITY) {
-                    System.out.println("Ошибка: вес посылки (" + weight + " кг) превышает максимальную ёмкость коробки для хрупких посылок (" + FRAGILE_BOX_CAPACITY + " кг).");
-                    return;
-                }
-
                 FragileParcel parcel = createFragileParcel(description, weight, deliveryAddress, sendDay);
+
                 if (currentFragileBox.isSent()) {
                     createNewBoxForType(ParcelCategory.FRAGILE);
                 }
-                if (!currentFragileBox.addParcel(parcel)) {
+
+                boolean added = currentFragileBox.addParcel(parcel);
+                if (!added) {
                     System.out.println("Текущая коробка заполнена. Отдаем в доставку и создаем новую.");
                     sendIfNotSent(currentFragileBox);
                     createNewBoxForType(ParcelCategory.FRAGILE);
-                    currentFragileBox.addParcel(parcel);
+                    added = currentFragileBox.addParcel(parcel);
                 }
+
+                if (!added) {
+                    System.out.println("Не удалось добавить посылку в коробку. Обратитесь к администратору.");
+                    return;
+                }
+
                 addParcelToSystem(parcel, parcel instanceof Trackable);
             }
         }
+    }
+
+    private int getMaxBoxCapacity(ParcelCategory type) {
+        return switch (type) {
+            case STANDARD -> STANDARD_BOX_CAPACITY;
+            case PERISHABLE -> PERISHABLE_BOX_CAPACITY;
+            case FRAGILE -> FRAGILE_BOX_CAPACITY;
+        };
     }
 
     private ParcelBox<? extends Parcel> getActiveBox(ParcelCategory type) {
@@ -207,16 +292,6 @@ public class ParcelController {
             totalCost += parcel.calculateDeliveryCost();
         }
         System.out.println("Общая сумма всех посылок, переданных на доставку, составляет " + totalCost + "$");
-    }
-
-    public void reportDeliveryCompleted() {
-        if (allParcels.isEmpty()) {
-            System.out.println("У вас нет ни одной посылки.");
-            return;
-        }
-        System.out.println("Введите название посылки, которая была доставлена:");
-        String parcelName = scanner.nextLine().trim();
-        makeDeliveryCompleted(parcelName);
     }
 
     public void makeDeliveryCompleted(String parcelName) {
@@ -285,17 +360,20 @@ public class ParcelController {
         }
     }
 
-    private ParcelBox<? extends Parcel> findBoxForParcel(Parcel parcel) {
-        if (currentStandardBox.getAllParcels().contains(parcel)) {
-            return currentStandardBox;
+    private ParcelBox<? extends Parcel> findBoxForParcel(Parcel target) {
+        for (ParcelBox<? extends Parcel> box : allBoxes) {
+            for (Parcel p : box.getAllParcels()) {
+                // Сравниваем по всем ключевым полям, как в equals(), но напрямую
+                if (Objects.equals(p.getDescription(), target.getDescription()) &&
+                        p.getWeight() == target.getWeight() &&
+                        Objects.equals(p.getDeliveryAddress(), target.getDeliveryAddress()) &&
+                        p.getSendDay() == target.getSendDay() &&
+                        p.getType() == target.getType()) {
+                    return box;
+                }
+            }
         }
-        if (currentPerishableBox.getAllParcels().contains(parcel)) {
-            return currentPerishableBox;
-        }
-        if (currentFragileBox.getAllParcels().contains(parcel)) {
-            return currentFragileBox;
-        }
-        throw new IllegalArgumentException("Посылка не найдена ни в одной коробке.");
+        throw new IllegalArgumentException("Посылка не найдена ни в одной коробке: " + target.getDescription());
     }
 
     public void changeCurrentDeliveryLocation() {
@@ -307,39 +385,87 @@ public class ParcelController {
         System.out.println("Введите название отслеживаемой посылки:");
         String parcelName = scanner.nextLine().trim();
 
-        for (Trackable trackable : trackableParcels) {
-            Parcel parcel = (Parcel) trackable;
-
-            if (parcelName.isEmpty()) {
-                System.out.println("Пожалуйста, введите команду. \n");
-                return;
-            }
-
-            ParcelBox<? extends Parcel> box = findBoxForParcel(parcel);
-            if (!box.isSent() && box.isTrackable()) {
-                System.out.println("Коробка еще не отправлена, вы не можете поменять ее статус.");
-                return;
-            }
-
-            if (parcelName.equals(parcel.getDescription())) {
-                System.out.print("Введите местоположение посылки <<" + parcel.getDescription() + ">>: ");
-                String newLocation = scanner.nextLine().trim();
-                trackable.reportStatus(newLocation);
-                parcel.setCurrentDeliveryLocation(newLocation);
-                parcel.changeStatus(Status.IN_TRANSIT);
-
-                if (parcel.getCurrentDeliveryLocation().equals(parcel.getDeliveryAddress())) {
-                    makeDeliveryCompleted(parcelName);
-                    parcel.changeStatus(Status.DELIVERED);
-                }
-                return;
-            }
+        if (parcelName.isEmpty()) {
+            System.out.println("Название не может быть пустым.");
+            return;
         }
-        System.out.println("Такой посылки нет. Проверьте название.");
+
+        // Ищем ТОЛЬКО отслеживаемые посылки с таким названием
+        List<Parcel> candidates = trackableParcels.stream()
+                .map(t -> (Parcel) t)
+                .filter(p -> p.getDescription().equals(parcelName))
+                .collect(Collectors.toList());
+
+        if (candidates.isEmpty()) {
+            System.out.println("Отслеживаемая посылка с названием <<" + parcelName + ">> не найдена.");
+            return;
+        }
+
+        Parcel parcel = chooseParcelFromList(candidates, parcelName);
+        if (parcel == null) return;
+
+        ParcelBox<? extends Parcel> box = findBoxForParcel(parcel);
+        if (!box.isSent() && box.isTrackable()) {
+            System.out.println("Коробка еще не отправлена, вы не можете поменять её местоположение.");
+            return;
+        }
+
+        System.out.print("Введите местоположение посылки <<" + parcel.getDescription() + ">>: ");
+        String newLocation = scanner.nextLine().trim();
+        ((Trackable) parcel).reportStatus(newLocation);
+        parcel.setCurrentDeliveryLocation(newLocation);
+        parcel.changeStatus(Status.IN_TRANSIT);
+
+        if (newLocation.equals(parcel.getDeliveryAddress())) {
+            makeDeliveryCompletedForParcel(parcel); // ← новый метод!
+        }
+    }
+
+    public void reportDeliveryCompleted() {
+        if (allParcels.isEmpty()) {
+            System.out.println("У вас нет ни одной посылки.");
+            return;
+        }
+        System.out.println("Введите название посылки, которая была доставлена:");
+        String parcelName = scanner.nextLine().trim();
+
+        if (parcelName.isEmpty()) {
+            System.out.println("Название не может быть пустым.");
+            return;
+        }
+
+        List<Parcel> candidates = findParcelsByName(parcelName);
+        Parcel parcel = chooseParcelFromList(candidates, parcelName);
+        if (parcel != null) {
+            makeDeliveryCompletedForParcel(parcel);
+        }
+    }
+
+    private void makeDeliveryCompletedForParcel(Parcel parcel) {
+        System.out.println("Посылка прибыла в пункт назначения.");
+        System.out.println("Вынимаем из коробки.");
+
+        ParcelBox<? extends Parcel> box = findBoxForParcel(parcel);
+
+        @SuppressWarnings("unchecked")
+        ParcelBox<Parcel> rawBox = (ParcelBox<Parcel>) box;
+        rawBox.removeParcel(parcel);
+
+        // Удаляем из списков
+        allParcels.remove(parcel);
+        if (parcel instanceof Trackable) {
+            trackableParcels.remove(parcel);
+        }
+
+        parcel.changeStatus(Status.DELIVERED);
+        System.out.println("Уведомление о поступлении посылки <<" + parcel.getDescription() + ">> отправлено получателю.");
+
+        if (allParcels.isEmpty()) {
+            System.out.println("Все посылки доставлены, можно отдыхать!");
+        }
     }
 
     public void showCurrentDeliveryLocation() {
-
         if (trackableParcels.isEmpty()) {
             System.out.println("У вас нет отслеживаемых посылок.");
             return;
@@ -348,44 +474,80 @@ public class ParcelController {
         System.out.println("Введите название посылки: ");
         String description = scanner.nextLine().trim();
 
-        boolean parcelExists = allParcels.stream()
-                .anyMatch(p -> p.getDescription().equals(description));
-
-        if (!parcelExists) {
-            System.out.println("Посылка с таким названием не найдена.");
+        if (description.isEmpty()) {
+            System.out.println("Название не может быть пустым.");
             return;
         }
 
-        for (Trackable trackable : trackableParcels) {
-            Parcel parcel = (Parcel) trackable;
-            if (parcel.getDescription().equals(description)) {
-                System.out.println(parcel.getCurrentDeliveryLocation());
+        List<Parcel> candidates = trackableParcels.stream()
+                .map(t -> (Parcel) t)
+                .filter(p -> p.getDescription().equals(description))
+                .collect(Collectors.toList());
+
+        if (candidates.isEmpty()) {
+            // Проверим, существует ли вообще такая посылка
+            boolean exists = allParcels.stream()
+                    .anyMatch(p -> p.getDescription().equals(description));
+            if (!exists) {
+                System.out.println("Посылка с таким названием не найдена.");
+            } else {
+                System.out.println("Посылка <<" + description + ">> не является отслеживаемой.");
             }
             return;
         }
-        System.out.println("Запрашиваемая вами посылка не отслеживается.");
+
+        Parcel parcel = chooseParcelFromList(candidates, description);
+        if (parcel != null) {
+            System.out.println(parcel.getCurrentDeliveryLocation());
+        }
     }
 
     public void showBoxContents() {
-        if (allParcels.isEmpty()) {
+        if (allBoxes.isEmpty()) {
             System.out.println("У вас пока нет посылок, все коробки пусты.");
             return;
         }
+
         ParcelCategory parcelType = chooseParcelType();
-        switch (parcelType) {
-            case STANDARD:
-                System.out.println("Содержимое коробки для обычных посылок:");
-                printParcels(currentStandardBox.getAllParcels());
-                break;
-            case PERISHABLE:
-                System.out.println("Содержимое коробки для скоропортящихся посылок:");
-                printParcels(currentPerishableBox.getAllParcels());
-                break;
-            case FRAGILE:
-                System.out.println("Содержимое коробки для хрупких посылок:");
-                printParcels(currentFragileBox.getAllParcels());
-                break;
+        List<? extends ParcelBox<? extends Parcel>> boxes = switch (parcelType) {
+            case STANDARD -> standardBoxes;
+            case PERISHABLE -> perishableBoxes;
+            case FRAGILE -> fragileBoxes;
+        };
+
+        if (boxes.isEmpty()) {
+            System.out.println("Нет коробок для выбранного типа.");
+            return;
         }
+
+        boolean hasNonEmptyBox = boxes.stream()
+                .anyMatch(box -> !box.getAllParcels().isEmpty());
+
+        if (!hasNonEmptyBox) {
+            System.out.println("Все коробки для " + parcelType + " пусты.");
+            return;
+        }
+
+        if (boxes.size() == 1) {
+            ParcelBox<? extends Parcel> onlyBox = boxes.getFirst();
+            System.out.println("\nСодержимое коробки (" + parcelType + "):");
+            printParcels(onlyBox.getAllParcels());
+            return;
+        }
+
+        System.out.println("\nДоступные коробки для " + parcelType + ":");
+        for (int i = 0; i < boxes.size(); i++) {
+            ParcelBox<? extends Parcel> box = boxes.get(i);
+            String status = box.isSent() ? "отправлена" : "не отправлена";
+            System.out.println((i + 1) + ". Коробка №" + (i + 1) + " (" + status + "), посылок: " + box.getAllParcels().size());
+        }
+
+        System.out.print("Выберите номер коробки для просмотра содержимого: ");
+        int choice = readValidBoxChoice(boxes.size());
+
+        ParcelBox<? extends Parcel> selectedBox = boxes.get(choice - 1);
+        System.out.println("\nСодержимое коробки №" + choice + " (" + parcelType + "):");
+        printParcels(selectedBox.getAllParcels());
     }
 
     public void printAllParcels() {
@@ -443,6 +605,26 @@ public class ParcelController {
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Неверный формат. Пожалуйста, введите число (1, 2 или 3).");
+            }
+        }
+    }
+
+    private int readValidBoxChoice(int max) {
+        while (true) {
+            String input = scanner.nextLine().trim();
+            if (input.isEmpty()) {
+                System.out.print("Пожалуйста, введите номер коробки: ");
+                continue;
+            }
+            try {
+                int num = Integer.parseInt(input);
+                if (num >= 1 && num <= max) {
+                    return num;
+                } else {
+                    System.out.print("Неверный номер. Введите число от 1 до " + max + ": ");
+                }
+            } catch (NumberFormatException e) {
+                System.out.print("Неверный формат. Введите число: ");
             }
         }
     }
