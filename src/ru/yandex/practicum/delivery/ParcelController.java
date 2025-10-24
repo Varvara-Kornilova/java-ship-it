@@ -570,16 +570,16 @@ public class ParcelController {
         }
     }
 
-    public void printNumbersToChooseType() {
-        System.out.println("Введите число, соответствующее типу посылки: \n"
-                 + "1. Обычная посылка \n"
-                 + "2. Скоропортящаяся посылка \n"
-                 + "3. Хрупкая посылка \n");
+    public String printNumbersToChooseType() {
+        return "Введите число, соответствующее типу посылки:\n"
+                 + "1. Обычная посылка\n"
+                 + "2. Скоропортящаяся посылка\n"
+                 + "3. Хрупкая посылка\n";
     }
 
     public ParcelCategory chooseParcelType() {
         while (true) {
-            printNumbersToChooseType();
+            System.out.println(printNumbersToChooseType());
             String input = scanner.nextLine().trim();
 
             if (input.isEmpty()) {
